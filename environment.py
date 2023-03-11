@@ -246,7 +246,6 @@ class Env:
                 time.sleep(self.dic["DELAY"])
                 
             self.__draw()
-
             # Show metrics
             if not active_or_idle:
                 print("from env: no active or idle agent scheduled for execution... terminating")
