@@ -24,8 +24,16 @@ class Explorer(AbstractAgent):
         #self.map = [[0]*12 for i in range(12)] #create the enviroment map with zeros
         self.position = (0,0)
         self.map = {}
+
+        self.cost = {}
+        self.visited = []
+        self.visited.append((0,0))
+        self.x = 0
+        self.y = 0
+
         self.resc = resc           # reference to the rescuer agent
         self.rtime = self.TLIM     # remaining time to explore     
+        self.btime = 0             #tempo que demora para voltar
 
     def deliberate(self) -> bool:
         """ The agent chooses the next action. The simulator calls this
@@ -40,34 +48,11 @@ class Explorer(AbstractAgent):
             self.resc.go_save_victims([],[])
             return False
         
-        sleep(0.7)
+        if self.rtime >= self.btime:
+            bestmov = bestmove(self)
 
-        possiblemoves = []
-        
-        for i in range(-1,2):
-            for j in range(-1,2):
-                newpos = (self.position[0]+i,self.position[1]+j)
-                if newpos != self.position and newpos not in self.map.keys():
-                    possiblemoves.append(newpos)  
-        if  not possiblemoves:
-            var = 0
-            #to do
-        bestmov = possiblemoves[0]
-        for mov in possiblemoves:
-            if distance(mov) <= distance(bestmov):
-                bestmov = mov
-        
         dx = bestmov[0]-self.position[0]
         dy = bestmov[1]-self.position[1]
-        # dx = random.choice([-1, 0, 1])
-
-        # if dx == 0:
-        #    dy = random.choice([-1, 1])
-        # else:
-        #    dy = random.choice([-1, 0, 1])
-       
-        # #if self.position in self.map.keys():
-
         
         # Moves the body to another position
         result = self.body.walk(dx, dy)
@@ -102,5 +87,36 @@ class Explorer(AbstractAgent):
 def distance(pos) -> float:
         return pos[0]**2 + pos[1]**2
 
+def bestmove(self) -> list:
+    possiblemoves = []
+        
+    for i in range(-1,2):
+        for j in range(-1,2):
+            newpos = (self.position[0]+i,self.position[1]+j)
+            if newpos != self.position and newpos not in self.map.keys():
+                possiblemoves.append(newpos)  
+    
+    if  not possiblemoves:
+        for i in range(-1,2):
+            for j in range(-1,2):
+                newpos = (self.position[0]+i,self.position[1]+j)
+                if newpos != self.position:
+                    possiblemoves.append(newpos)
+            
+        
 
+    bestmov = possiblemoves[0]
+    for mov in possiblemoves:
+        if distance(mov) <= distance(bestmov):
+            bestmov = mov
+    return bestmov
 
+def determine_cost(self,x,y):      
+    
+    least_neighbor_cost = 10000
+    self.cost[(x,y)] = least_neighbor_cost
+
+    for i in range(-1,2):
+        for j in range(-1,2):
+            print("chekcing {} {}", i,j)
+            least_neighbor_cost = self.cost[(x+1,y+j) + (self.COST_LINE)]

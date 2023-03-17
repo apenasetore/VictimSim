@@ -7,6 +7,7 @@ import time
 from environment import Env
 from explorer import Explorer
 from rescuer import Rescuer
+from generateMap import generateMap
 
 def main(data_folder_name):
    
@@ -15,6 +16,8 @@ def main(data_folder_name):
     data_folder = os.path.abspath(os.path.join(current_folder, data_folder_name))
 
     
+    generateMap()
+
     # Instantiate the environment
     env = Env(data_folder)
     
