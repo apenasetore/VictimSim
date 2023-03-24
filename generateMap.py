@@ -9,6 +9,7 @@ def generateMap():
     fwall = open("data/env_walls.txt","w")
     fvictims = open("data/env_victims.txt","w")
     fsinaisvitais = open("data/sinais_vitais.txt","w")
+    fenv_size = open("data/env_size.txt","w")
 
     walls = []
     victms = []
@@ -43,6 +44,16 @@ def generateMap():
         fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,1\n".format(i))
         fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
         i+=1
+    
+    spawnx =random.randrange(0,11)
+    spawny =random.randrange(0,11)
+    
+    while (spawnx, spawny) in walls:
+        spawnx =random.randrange(0,11)
+        spawny =random.randrange(0,11)
+    fenv_size.write("BASE {0},{1}\nGRID_WIDTH 12\nGRID_HEIGHT 12\nWINDOW_WIDTH 300\nWINDOW_HEIGHT 300\nDELAY 0.01".format(spawnx,spawny))
+    
+    fenv_size.close()
     fwall.close()
     fvictims.close()
     fsinaisvitais.close()        

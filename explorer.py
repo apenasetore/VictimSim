@@ -8,7 +8,8 @@ import random
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
-from time import sleep
+import time
+
 
 class Explorer(AbstractAgent):
     def __init__(self, env, config_file, resc):
@@ -21,102 +22,114 @@ class Explorer(AbstractAgent):
         super().__init__(env, config_file)
         
         # Specific initialization for the rescuer
-        #self.map = [[0]*12 for i in range(12)] #create the enviroment map with zeros
-        self.position = (0,0)
-        self.map = {}
+        self.resc = resc           # reference to the rescuer agent
+        self.rtime = self.TLIM     # remaining time to explore     
 
         self.cost = {}
         self.visited = []
         self.visited.append((0,0))
+        self.cost[(0, 0)] = 0.0
+        self.timetogo = False
         self.x = 0
         self.y = 0
+        self.victims = []
+   
+    #determine believed cost of moving from (0, 0) to (x, y)
+    def determine_cost(self, x, y):
+        least_neighbor_cost = 10000
+        self.cost[(x, y)] = least_neighbor_cost
 
-        self.resc = resc           # reference to the rescuer agent
-        self.rtime = self.TLIM     # remaining time to explore     
-        self.btime = 0             #tempo que demora para voltar
+        #search the neighbors for the least total cost (cost of the position + cost of move)
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                print("checking {} {}", i, j)
+                if (x+i, y+j) in self.visited and (x+i, y+j) in self.cost.keys() and self.cost[(x+i, y+j)] + (self.COST_LINE if i==0 or j==0 else self.COST_DIAG) < least_neighbor_cost:
+                    print("is less")
+                    least_neighbor_cost = self.cost[(x+i, y+j)] + (self.COST_LINE if i==0 or j==0 else self.COST_DIAG)
+        self.cost[(x, y)] = least_neighbor_cost
+
+        print(least_neighbor_cost)
+        return self.cost[(x, y)]
 
     def deliberate(self) -> bool:
+        
+        time.sleep(0.5)
         """ The agent chooses the next action. The simulator calls this
         method at each cycle. Must be implemented in every agent"""
-
+        #print(self.cost)
         # No more actions, time almost ended
-        if self.rtime < 10.0: 
+        if self.rtime < 0.0: 
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
-            print(self.map)
             self.resc.go_save_victims([],[])
             return False
         
-        if self.rtime >= self.btime:
-            bestmov = bestmove(self)
+        dx = random.choice([-1, 0, 1])
 
-        dx = bestmov[0]-self.position[0]
-        dy = bestmov[1]-self.position[1]
-        
+        if dx == 0:
+           dy = random.choice([-1, 1])
+        else:
+           dy = random.choice([-1, 0, 1])
+
+        #determine cost of all possible moves and takes the one with least cost
+        least_move_cost = 10000
+        return_cost = 10000
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (self.x+i, self.y+j) not in self.cost.keys():
+                    move_cost = self.determine_cost(self.x+i, self.y+j)
+                else:
+                    move_cost = self.cost[(self.x+i, self.y+j)]
+                
+                if (self.x+i, self.y+j) in self.visited and self.cost[(self.x+i, self.y+j)] < return_cost:
+                    self.goback = (i, j)
+                    return_cost = self.cost[(self.x+i, self.y+j)]
+
+                if move_cost < least_move_cost and (i != 0 or j != 0) and (self.x+i, self.y+j) not in self.visited:
+                    least_move_cost = move_cost
+                    dx = i
+                    dy = j
+
+        if self.rtime < return_cost + self.COST_DIAG + self.COST_LINE:
+            self.timetogo = True
+            print("Voltar")
+        if self.timetogo:
+            dx = self.goback[0]
+            dy = self.goback[1]
+
         # Moves the body to another position
         result = self.body.walk(dx, dy)
+        #print(dx)
+        #print(dy)
+        print("tempo q me resta"+str(self.rtime))
+        print("tempo para voltar"+str(return_cost))
 
         # Update remaining time
         if dx != 0 and dy != 0:
             self.rtime -= self.COST_DIAG
         else:
             self.rtime -= self.COST_LINE
-
         # Test the result of the walk action
         if result == PhysAgent.BUMPED:
-            self.map[(self.position[0]+dx,self.position[1]+dy)] = 1
-            #self.map[dx][dy] = 1  # build the map- to do
+            walls = 1  # build the map- to do
+            self.cost[(self.x+dx, self.y+dy)] = 10000
             # print(self.name() + ": wall or grid limit reached")
 
         if result == PhysAgent.EXECUTED:
-            self.position = (self.position[0]+dx,self.position[1]+dy)
+            self.x += dx
+            self.y += dy
             # check for victim returns -1 if there is no victim or the sequential
             # the sequential number of a found victim
-            seq = self.body.check_for_victim()
-            if seq >= 0:
-                vs = self.body.read_vital_signals(seq)
-                self.rtime -= self.COST_READ
-                self.map[self.position] = 2
-                # print("exp: read vital signals of " + str(seq))
-                # print(vs)
-            else:
-                self.map[self.position] = 0       
+            if (self.x, self.y) not in self.visited: 
+                seq = self.body.check_for_victim()
+                if seq >= 0:
+                    self.victims.append((self.x, self.y))
+                    vs = self.body.read_vital_signals(seq)
+                    self.rtime -= self.COST_READ
+                    # print("exp: read vital signals of " + str(seq))
+                    # print(vs)
+        self.visited.append((self.x, self.y))
+       
         return True
 
-def distance(pos) -> float:
-        return pos[0]**2 + pos[1]**2
-
-def bestmove(self) -> list:
-    possiblemoves = []
-        
-    for i in range(-1,2):
-        for j in range(-1,2):
-            newpos = (self.position[0]+i,self.position[1]+j)
-            if newpos != self.position and newpos not in self.map.keys():
-                possiblemoves.append(newpos)  
-    
-    if  not possiblemoves:
-        for i in range(-1,2):
-            for j in range(-1,2):
-                newpos = (self.position[0]+i,self.position[1]+j)
-                if newpos != self.position:
-                    possiblemoves.append(newpos)
-            
-        
-
-    bestmov = possiblemoves[0]
-    for mov in possiblemoves:
-        if distance(mov) <= distance(bestmov):
-            bestmov = mov
-    return bestmov
-
-def determine_cost(self,x,y):      
-    
-    least_neighbor_cost = 10000
-    self.cost[(x,y)] = least_neighbor_cost
-
-    for i in range(-1,2):
-        for j in range(-1,2):
-            print("chekcing {} {}", i,j)
-            least_neighbor_cost = self.cost[(x+1,y+j) + (self.COST_LINE)]
