@@ -14,15 +14,15 @@ def generateMap():
     walls = []
     victms = []
 
-    for i in range(0, random.randrange(1,100)+1):
+    for i in range(0, random.randrange(2,7)): #select random position 
         originCoordnatex =random.randrange(0,11)
         originCoordnatey =random.randrange(0,11)
         
-        for i in range(0, random.randrange(1,6)+1):
-            nextCoordx = random.randrange(-1,1)
-            nextCoordy = random.randrange(-1,1)
-            if originCoordnatex+nextCoordx < 0 or  originCoordnatex+nextCoordx> 11 or originCoordnatey+nextCoordy < 0 or  originCoordnatey+nextCoordy > 11:
-                walls.append((originCoordnatey+nextCoordx,originCoordnatey+nextCoordy))
+        for i in range(0, random.randrange(2,7)):
+            nextCoordx = random.randrange(-1,2)
+            nextCoordy = random.randrange(-1,2)
+            if originCoordnatex+nextCoordx >= 0 and  originCoordnatex+nextCoordx <= 11 and originCoordnatey+nextCoordy >= 0 and  originCoordnatey+nextCoordy <= 11:
+                walls.append((originCoordnatex+nextCoordx,originCoordnatey+nextCoordy))
                 originCoordnatex += nextCoordx
                 originCoordnatey += nextCoordy
     
