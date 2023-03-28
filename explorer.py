@@ -53,16 +53,20 @@ class Explorer(AbstractAgent):
 
     def deliberate(self) -> bool:
         
-        time.sleep(0.5)
+        time.sleep(0.24)
         """ The agent chooses the next action. The simulator calls this
         method at each cycle. Must be implemented in every agent"""
         #print(self.cost)
         # No more actions, time almost ended
-        if self.rtime < 0.0: 
+        if self.x == 0 and self.y == 0 and self.timetogo: 
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
+            for pos in self.cost.keys():
+                if pos not in self.visited:
+                    self.cost[pos] = 1000
+                    
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
-            self.resc.go_save_victims([],[])
+            self.resc.go_save_victims(self.cost,self.victims)
             return False
         
         dx = random.choice([-1, 0, 1])
@@ -124,8 +128,9 @@ class Explorer(AbstractAgent):
             if (self.x, self.y) not in self.visited: 
                 seq = self.body.check_for_victim()
                 if seq >= 0:
-                    self.victims.append((self.x, self.y))
                     vs = self.body.read_vital_signals(seq)
+                    self.victims.append(((self.x, self.y),vs))
+
                     self.rtime -= self.COST_READ
                     # print("exp: read vital signals of " + str(seq))
                     # print(vs)

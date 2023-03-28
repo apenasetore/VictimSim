@@ -41,10 +41,25 @@ def generateMap():
         fwall.write("{0},{1}\n".format(w[0],w[1]))
 
     for v in victms:
-        fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,1\n".format(i))
-        fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
-        i+=1
-    
+        rand = random.randint(0, 3)
+        if rand ==0:
+            fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,1\n".format(i))
+            fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
+            i+=1
+        if rand ==1:
+            fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,2\n".format(i))
+            fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
+            i+=1
+        if rand ==2:
+            fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,3\n".format(i))
+            fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
+            i+=1
+        if rand ==3:
+            fsinaisvitais.write("{0},18.954033,4.771111,-6.834524,157.992606,19.918640,19.088752,4\n".format(i))
+            fvictims.write("{0}, {1}\n".format(v[0],v[1]))    
+            i+=1
+        
+        
     spawnx =random.randrange(0,11)
     spawny =random.randrange(0,11)
     
