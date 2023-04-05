@@ -7,7 +7,7 @@ import random
 from abstract_agent import AbstractAgent
 from physical_agent import PhysAgent
 from abc import ABC, abstractmethod
-
+from heap import min_heap
 
 ## Classe que define o Agente Rescuer com um plano fixo
 class Rescuer(AbstractAgent):
@@ -21,7 +21,7 @@ class Rescuer(AbstractAgent):
         # Specific initialization for the rescuer
         self.plan = []              # a list of planned actions
         self.rtime = self.TLIM      # for controlling the remaining time
-        
+
         # Starts in IDLE state.
         # It changes to ACTIVE when the map arrives
         self.body.set_state(PhysAgent.IDLE)
@@ -29,13 +29,49 @@ class Rescuer(AbstractAgent):
         # planning
         self.__planner()
     
-    def go_save_victims(self, walls, victims):
+    def go_save_victims(self, cost, victims):
+        self.map = cost.keys()
+        self.victims  = victims
+        self.victims_cost = {}
+        
+        for v in self.victims:
+            print(v[0])
+            self.victims_cost[v[0]] = self.generate_cost(v[0])
+            print(self.victims_cost[v[0]])
         """ The explorer sends the map containing the walls and
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
         self.body.set_state(PhysAgent.ACTIVE)
+
+    def generate_cost(self, origin):
         
-    
+        costs = {}
+        frontier = min_heap()
+        frontier.insert((0,origin))
+        
+        while frontier.size > 0:
+            print("Etore")
+            least_cost_pos = frontier.pop()
+            x = least_cost_pos[1][0]
+            y = least_cost_pos[1][1]
+            costs[least_cost_pos[1]] = least_cost_pos[0]
+            
+            for i  in range(-1,2):
+                for j  in range(-1,2):
+                    if (i+x,j+y) not in costs.keys() and not frontier.is_in((i+x,j+y)):
+                        if i != 0 and j != 0:
+                            frontier.insert((least_cost_pos[0]+self.COST_DIAG,(x+i,y+j)))
+                        else:
+                            frontier.insert((least_cost_pos[0]+self.COST_LINE,(x+i,y+j)))
+                    
+                    if frontier.is_in((x+i,y+j)):
+                        if i != 0 and j != 0:
+                            frontier.decrease_key((x+i,y+j),least_cost_pos[0]+self.COST_DIAG)
+                        else:
+                            frontier.decrease_key((x+i,y+j),least_cost_pos[0]+self.COST_LINE)
+                    print(frontier.map)
+        return costs
+                        
     def __planner(self):
         """ A private method that calculates the walk actions to rescue the
         victims. Further actions may be necessary and should be added in the

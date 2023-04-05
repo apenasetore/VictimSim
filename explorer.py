@@ -53,7 +53,7 @@ class Explorer(AbstractAgent):
 
     def deliberate(self) -> bool:
         
-        time.sleep(0.24)
+        #time.sleep(0.24)
         """ The agent chooses the next action. The simulator calls this
         method at each cycle. Must be implemented in every agent"""
         #print(self.cost)
