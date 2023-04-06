@@ -15,13 +15,15 @@ class min_heap():
         return 2*i + 2
     
     def swap(self, i, j):
+
+        self.map[self.heap[j][1]] = i
+        self.map[self.heap[i][1]] = j
+
         aux = self.heap[i]
         self.heap[i] = self.heap[j]
         self.heap[j] = aux
 
-        self.map[self.heap[i][1]] = i
-        self.map[self.heap[i][1]] = j
-
+        
     def min_heapify(self, node) -> None:
         l = self.left_child(node)
         r = self.right_child(node)
@@ -39,8 +41,6 @@ class min_heap():
             self.min_heapify(smallest)
         
     def insert(self, element):
-        print("element")
-        print(element[1])
         self.heap.append(element)
         self.size += 1
         self.map[element[1]] = self.size - 1
@@ -49,7 +49,6 @@ class min_heap():
         self.min_heapify(0)
 
     def pop(self):
-        print("pop")
         top = self.heap[0]
         
         if self.size > 1:

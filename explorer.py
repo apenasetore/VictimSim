@@ -42,9 +42,7 @@ class Explorer(AbstractAgent):
         #search the neighbors for the least total cost (cost of the position + cost of move)
         for i in range(-1, 2):
             for j in range(-1, 2):
-                print("checking {} {}", i, j)
                 if (x+i, y+j) in self.visited and (x+i, y+j) in self.cost.keys() and self.cost[(x+i, y+j)] + (self.COST_LINE if i==0 or j==0 else self.COST_DIAG) < least_neighbor_cost:
-                    print("is less")
                     least_neighbor_cost = self.cost[(x+i, y+j)] + (self.COST_LINE if i==0 or j==0 else self.COST_DIAG)
         self.cost[(x, y)] = least_neighbor_cost
 
@@ -61,10 +59,11 @@ class Explorer(AbstractAgent):
         if self.x == 0 and self.y == 0 and self.timetogo: 
             # time to wake up the rescuer
             # pass the walls and the victims (here, they're empty)
-            for pos in self.cost.keys():
-                if pos not in self.visited:
-                    self.cost[pos] = 1000
-                    
+            for pos in list(self.cost.keys()):
+                if pos not in self.visited or self.cost[pos] == 1000:
+                    del self.cost[pos]
+                
+                
             print(f"{self.NAME} I believe I've remaining time of {self.rtime:.1f}")
             self.resc.go_save_victims(self.cost,self.victims)
             return False
@@ -95,19 +94,14 @@ class Explorer(AbstractAgent):
                     dx = i
                     dy = j
 
-        if self.rtime < return_cost + self.COST_DIAG + self.COST_LINE:
+        if self.rtime < return_cost + self.COST_DIAG + 2*self.COST_LINE:
             self.timetogo = True
-            print("Voltar")
         if self.timetogo:
             dx = self.goback[0]
             dy = self.goback[1]
 
         # Moves the body to another position
         result = self.body.walk(dx, dy)
-        #print(dx)
-        #print(dy)
-        print("tempo q me resta"+str(self.rtime))
-        print("tempo para voltar"+str(return_cost))
 
         # Update remaining time
         if dx != 0 and dy != 0:

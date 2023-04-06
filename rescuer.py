@@ -33,11 +33,10 @@ class Rescuer(AbstractAgent):
         self.map = cost.keys()
         self.victims  = victims
         self.victims_cost = {}
+        self.origin_cost = self.generate_cost((0,0))
         
         for v in self.victims:
-            print(v[0])
             self.victims_cost[v[0]] = self.generate_cost(v[0])
-            print(self.victims_cost[v[0]])
         """ The explorer sends the map containing the walls and
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
@@ -50,7 +49,6 @@ class Rescuer(AbstractAgent):
         frontier.insert((0,origin))
         
         while frontier.size > 0:
-            print("Etore")
             least_cost_pos = frontier.pop()
             x = least_cost_pos[1][0]
             y = least_cost_pos[1][1]
@@ -58,7 +56,7 @@ class Rescuer(AbstractAgent):
             
             for i  in range(-1,2):
                 for j  in range(-1,2):
-                    if (i+x,j+y) not in costs.keys() and not frontier.is_in((i+x,j+y)):
+                    if (i+x,j+y) not in costs.keys() and not frontier.is_in((i+x,j+y)) and (i+x,j+y) in self.map:
                         if i != 0 and j != 0:
                             frontier.insert((least_cost_pos[0]+self.COST_DIAG,(x+i,y+j)))
                         else:
@@ -69,7 +67,6 @@ class Rescuer(AbstractAgent):
                             frontier.decrease_key((x+i,y+j),least_cost_pos[0]+self.COST_DIAG)
                         else:
                             frontier.decrease_key((x+i,y+j),least_cost_pos[0]+self.COST_LINE)
-                    print(frontier.map)
         return costs
                         
     def __planner(self):
