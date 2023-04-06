@@ -33,15 +33,17 @@ class Rescuer(AbstractAgent):
         self.map = cost.keys()
         self.victims  = victims
         self.victims_cost = {}
+        print(victims)
         self.origin_cost = self.generate_cost((0,0))
         
         for v in self.victims:
             self.victims_cost[v[0]] = self.generate_cost(v[0])
+            print(self.victims_cost[v[0]])
+            print("\n")
         """ The explorer sends the map containing the walls and
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
         self.body.set_state(PhysAgent.ACTIVE)
-
     def generate_cost(self, origin):
         
         costs = {}
