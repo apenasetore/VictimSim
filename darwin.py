@@ -1,7 +1,9 @@
+import random
 class darwin:
     def __init__(self,victims,victim_cost, origin_cost,ttime):
         
-        self.populacao = []
+        self.population = []
+        self.population_fitness = []
         self.victims = victims
         self.victim_cost = victim_cost
         self.origin_cost = origin_cost
@@ -30,4 +32,63 @@ class darwin:
             
             if self.ttime < sum_cost:
                 rescue_factor *= 0.1
+        
         return rescue_factor
+
+    def crossing_over(self):
+        
+        gene_probab = []
+        gene_son = []
+        gene_son_fitness =[]
+        rescue_factor_total = 0
+
+        for g in self.populacao:
+            rescue_factor_total += self.gene_fitness(g)
+        for g in self.populacao:
+            gene_probab.append(self.gene_fitness(g)/rescue_factor_total)
+        
+        for i in range(0,4):
+            gene_parents = random.choices(self.populacao, weights=gene_probab, k = 2)
+            gene_son.append(self.mate(gene_parents))
+            gene_son_fitness.append(self.gene_fitness(gene_son))
+        self.population.extend(gene_son)
+        self.population_fitness.extend(gene_son_fitness)
+    
+    def mate(self,parents):
+        
+        child = []
+        victims_to_be_save = list(range(1,len(self.victims)+1)) 
+
+        for i in range(0, len(parents[0])):
+            choice= random.randrange(0,2)
+            c_new = parents[choice][i]            
+            if c_new not in child:
+                child[i] = c_new
+                victims_to_be_save.remove(abs(c_new))
+            else:
+                child[i] = 0
+        for i in range(0,len(child)):
+            if child[i] == 0:
+                g = random.choice(victims_to_be_save)
+                victims_to_be_save.remove(g)
+                genes = [g,-g]
+                child[i] = random.choice(g)      
+        return child    
+    
+    def natural_selection(self):
+        for i in range(1,5):
+            worst = 0
+            for j in range(0, len(self.population)): 
+                if self.population_fitness(worst) > self.population_fitness(j):
+                    worst = j
+            del self.population[worst]
+            del self.population_fitness[worst] 
+                
+
+
+            
+
+                
+                
+            
+         
