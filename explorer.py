@@ -46,7 +46,7 @@ class Explorer(AbstractAgent):
                     least_neighbor_cost = self.cost[(x+i, y+j)] + (self.COST_LINE if i==0 or j==0 else self.COST_DIAG)
         self.cost[(x, y)] = least_neighbor_cost
 
-        print(least_neighbor_cost)
+        #print(least_neighbor_cost)
         return self.cost[(x, y)]
 
     def deliberate(self) -> bool:

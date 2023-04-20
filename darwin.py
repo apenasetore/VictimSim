@@ -30,7 +30,8 @@ class darwin:
     def run_generation(self):
         self.crossing_over()
         self.natural_selection()
-        print(self.gene_fitness(self.get_best()))
+        #print(self.gene_fitness(self.get_best()))
+        return self.gene_fitness(self.get_best())
 
     def get_best(self):
         if (not self.population):
@@ -39,6 +40,7 @@ class darwin:
         for j in range(0, len(self.population)): 
             if self.population_fitness[best] < self.population_fitness[j]:
                 best = j
+        #print(self.population)
         return self.population[best]
    
     def gene_fitness(self,gene):
@@ -89,11 +91,10 @@ class darwin:
         
         child = []
         victims_to_be_save = list(range(1,len(self.victims)+1)) 
-
         for i in range(0, len(parents[0])):#
             choice= random.randrange(0,2)
             c_new = parents[choice][i]            
-            if c_new not in child:
+            if c_new not in child and -c_new not in child:
                 child.append(c_new)
                 victims_to_be_save.remove(abs(c_new))
             else:
@@ -104,10 +105,37 @@ class darwin:
                 victims_to_be_save.remove(g)
                 genes = [g,-g]
                 child[i] = random.choice(genes)      
+        mutation = random.randrange(1,11)
+        if mutation == 1:
+            i = random.randrange(0,len(child))
+            j = random.randrange(0,len(child))
+            aux = child[i]
+            child[i] = child[j]
+            child[j] = aux
+        
+        mutation = random.randrange(1,11)
+        if mutation == 1:
+            i = random.randrange(0,len(child))
+            child[i] = -child[i]
+        
+        mutation = random.randrange(1,11)
+        if mutation == 1:
+            i = random.randrange(0,len(child))
+            j = random.randrange(0,len(child))
+            aux = child[i]
+            child[i] = child[j]
+            child[j] = aux
+        
+        mutation = random.randrange(1,11)
+        if mutation == 1:
+            i = random.randrange(0,len(child))
+            child[i] = -child[i]
+            
+
         return child    
     
     def natural_selection(self):
-
+            
         for i in range(0, self.population_size//2): #makes the population size return to the fixed number after reproduction
             worst = 0
             for j in range(0, len(self.population)): 

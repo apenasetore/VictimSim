@@ -26,7 +26,7 @@ def generateMap():
                 originCoordnatex += nextCoordx
                 originCoordnatey += nextCoordy
     
-    for i in range(0, random.randrange(1,10)+1):
+    for i in range(0, random.randrange(20,50)+1):
         
         VictimCoordnatex =random.randrange(0,11)
         VictimCoordnatey =random.randrange(0,11)

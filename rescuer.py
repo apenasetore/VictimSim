@@ -39,25 +39,22 @@ class Rescuer(AbstractAgent):
         self.map = cost.keys()
         self.victims  = victims
         self.victims_cost = {}
-        print(victims)
+        #print(victims)
         self.origin_cost = self.generate_cost((0,0))
         
         for v in self.victims:
             self.victims_cost[v[0]] = self.generate_cost(v[0])
-            print(self.victims_cost[v[0]])
-            print("\n")
         """ The explorer sends the map containing the walls and
         victims' location. The rescuer becomes ACTIVE. From now,
         the deliberate method is called by the environment"""
 
         population = darwin(self.victims, self.victims_cost, self.origin_cost, self.rtime)
-
-        population.run_generation()
-        population.run_generation()
-        population.run_generation()
-        population.run_generation()
-        population.run_generation()
-
+        i = 0
+        best_fitness = 0
+        while i < 50000 or best_fitness < 1 :
+            best_fitness = population.run_generation()
+            i+=1
+        
         self.best_gene = population.get_best()
         self.body.set_state(PhysAgent.ACTIVE)
 
@@ -92,8 +89,8 @@ class Rescuer(AbstractAgent):
     def goto_origin(self, cost):#given a cost matrix, go to its origin
         
         while(cost[(self.x, self.y)] > 0):
-            print("going")
-            print(cost[(self.x, self.y)])
+            #print("going")
+            #print(cost[(self.x, self.y)])
             return_cost = 10000
             dx = 0
             dy = 0
@@ -129,7 +126,7 @@ class Rescuer(AbstractAgent):
         self.plan.append((1,1)) """
 
         for v in self.best_gene:
-            print("rescuing"+str(v))
+            #print("rescuing"+str(v))
             if v < 0:
                 continue
             else:
